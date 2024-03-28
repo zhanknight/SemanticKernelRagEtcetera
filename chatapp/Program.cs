@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
-using Microsoft.SemanticKernel.Connectors.Sqlite;
+using Microsoft.SemanticKernel.Connectors.Qdrant;
 using Microsoft.SemanticKernel.Memory;
 using Microsoft.SemanticKernel.Text;
 using System.Net;
@@ -27,12 +27,13 @@ Kernel kernel = kb.Build();
 // create embeddings for a document
 ISemanticTextMemory memory = new MemoryBuilder()
     .WithLoggerFactory(kernel.LoggerFactory)
-    .WithMemoryStore(await SqliteMemoryStore.ConnectAsync("wikidata.db"))
+    //.WithMemoryStore(await SqliteMemoryStore.ConnectAsync("wikidata.db"))
+    .WithMemoryStore(new QdrantMemoryStore("http://localhost:6333/", 3072))
     .WithAzureOpenAITextEmbeddingGeneration("OAIZKEMBED", endpoint, apikey)
     .Build();
 
 IList<string> collections = await memory.GetCollectionsAsync();
-string collectionName = "article";
+string collectionName = "article_q";
 
 if (collections.Contains(collectionName))
 {
@@ -74,8 +75,8 @@ while (true)
     {
         builder.Insert(0, "Here's some additional information: ");
         contextToRemove = chat.Count;
-        // chat.AddUserMessage(builder.ToString());
-        chat.AddAssistantMessage("On March 26, 2024, at 01:27 EDT (05:27 UTC), the main parts of the Francis Scott Key Bridge, across the Patapsco River in Baltimore Harbor, Baltimore, Maryland, United States, collapsed after the Singaporean-flagged container ship Dali struck one of its support pillars.");
+        chat.AddUserMessage(builder.ToString());
+        // chat.AddUserMessage("On March 26, 2024, at 01:27 EDT (05:27 UTC), the main parts of the Francis Scott Key Bridge, across the Patapsco River in Baltimore Harbor, Baltimore, Maryland, United States, collapsed after the Singaporean-flagged container ship Dali struck one of its support pillars.");
     }
 
     chat.AddUserMessage(question);
