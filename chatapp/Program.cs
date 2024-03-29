@@ -25,7 +25,7 @@ kb.AddAzureOpenAIChatCompletion(deployment!, endpoint!, apiKey: apikey);
 kb.Plugins.AddFromType<MathPlugin>();
 kb.Plugins.AddFromType<TestPlugin>();
 
-kb.Services.AddLogging(x => x.AddConsole().SetMinimumLevel(LogLevel.Trace));
+kb.Services.AddLogging(x => x.AddConsole().SetMinimumLevel(LogLevel.Information));
 kb.Services.ConfigureHttpClientDefaults(x => x.AddStandardResilienceHandler());
 Kernel kernel = kb.Build();
 
@@ -93,7 +93,7 @@ while (true)
 
     chat.AddUserMessage(question);
 
-    Console.WriteLine(builder.ToString());
+    // Console.WriteLine(builder.ToString());
     builder.Clear();
 
     await foreach (var message in ai.GetStreamingChatMessageContentsAsync(chat, settings, kernel))
@@ -105,7 +105,7 @@ while (true)
     Console.WriteLine();
     chat.AddAssistantMessage(builder.ToString());
 
-    if (contextToRemove >= 0) chat.RemoveAt(contextToRemove);
+    //if (contextToRemove >= 0) chat.RemoveAt(contextToRemove);
     Console.WriteLine();
 
 }

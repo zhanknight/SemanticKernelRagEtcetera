@@ -20,4 +20,24 @@ public sealed class TestPlugin
 
         return "French Fries";
     }
+
+    [KernelFunction, Description("Checks if an item is in stock or out of stock")]
+    public static string CheckStock(
+    [Description("The ID of the item to check")] string item)
+    {
+        List<string> stock = [ "123abc", "doughnuts", "99999" ];
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("Checking stock..");
+        Console.ResetColor();
+
+        if (stock.Contains(item))
+        {
+            return "In stock";
+        }
+        else
+        {
+            return "Out of stock";
+        }
+    }
 }
