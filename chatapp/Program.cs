@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Azure.AI.OpenAI;
+using chatapp.Plugins;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
@@ -20,6 +22,9 @@ string deployment = Environment.GetEnvironmentVariable("chatappDeploymentName")!
 // Initialize the kernel
 IKernelBuilder kb = Kernel.CreateBuilder();
 kb.AddAzureOpenAIChatCompletion(deployment!, endpoint!, apiKey: apikey);
+kb.Plugins.AddFromType<MathPlugin>();
+kb.Plugins.AddFromType<TestPlugin>();
+
 kb.Services.AddLogging(x => x.AddConsole().SetMinimumLevel(LogLevel.Trace));
 kb.Services.ConfigureHttpClientDefaults(x => x.AddStandardResilienceHandler());
 Kernel kernel = kb.Build();
@@ -34,9 +39,9 @@ ISemanticTextMemory memory = new MemoryBuilder()
 
 IList<string> collections = await memory.GetCollectionsAsync();
 string collectionName = "article_q";
-
-if (collections.Contains(collectionName))
-{
+//if (collections.Contains(collectionName))
+    if (true)
+    {
     Console.WriteLine("Found database");
 }
 else
@@ -59,6 +64,13 @@ else
 var ai = kernel.GetRequiredService<IChatCompletionService>();
 ChatHistory chat = new("You are an AI assistant that helps people find information.");
 StringBuilder builder = new();
+
+OpenAIPromptExecutionSettings settings = new() { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
+
+
+string answer = await kernel.InvokeAsync<string>("TestPlugin", "RemyFood");
+Console.WriteLine($"result: :::::  {answer}.");
+
 
 // Q&A loop
 while (true)
@@ -84,7 +96,7 @@ while (true)
     Console.WriteLine(builder.ToString());
     builder.Clear();
 
-    await foreach (var message in ai.GetStreamingChatMessageContentsAsync(chat))
+    await foreach (var message in ai.GetStreamingChatMessageContentsAsync(chat, settings, kernel))
     {
         Console.Write(message);
         builder.Append(message.Content);
