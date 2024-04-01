@@ -40,6 +40,7 @@ ISemanticTextMemory memory = new MemoryBuilder()
 IList<string> collections = await memory.GetCollectionsAsync();
 string collectionName = "article_q";
 //if (collections.Contains(collectionName))
+// currently hard skipping the db check to avoid recreating embeddends and using up azure cred
     if (true)
     {
     Console.WriteLine("Found database");
@@ -67,7 +68,7 @@ StringBuilder builder = new();
 
 OpenAIPromptExecutionSettings settings = new() { ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions };
 
-
+// manually invoke plugin 
 string answer = await kernel.InvokeAsync<string>("TestPlugin", "RemyFood");
 Console.WriteLine($"result: :::::  {answer}.");
 
